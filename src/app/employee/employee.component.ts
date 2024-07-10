@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EmployeeService } from '../commonservice/employee.service';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-employee',
@@ -7,6 +8,7 @@ import { EmployeeService } from '../commonservice/employee.service';
   styleUrls: ['./employee.component.css']
 })
 export class EmployeeComponent implements OnInit {
+  id: number;
   employees: any[] = [];
   employeeForm = {
     name: '',
@@ -18,19 +20,21 @@ export class EmployeeComponent implements OnInit {
   constructor(private employeeService: EmployeeService) {}
 
   ngOnInit(): void {
-    this.getEmployees();
+    setTimeout(() => {
+      this.getEmployees();  
+    }, 5000);
   }
 
   getEmployees() {
-    this.employeeService.debounceRequest(() => {
+   // this.employeeService.debounceRequest(() => {
       this.employeeService.getEmployees().subscribe(data => {
         this.employees = data.data;
       });
-    });
+    //});
   }
 
   getEmployeeById(id: number) {
-    this.employeeService.debounceRequest(() => {
+    //this.employeeService.debounceRequest(() => {
       this.employeeService.getEmployeeById(id).subscribe(data => {
         this.editingEmployee = data.data;
         this.employeeForm = {
@@ -39,32 +43,56 @@ export class EmployeeComponent implements OnInit {
           age: this.editingEmployee.employee_age
         };
       });
-    });
+    //});
   }
 
   createEmployee() {
-    this.employeeService.debounceRequest(() => {
+    //this.employeeService.debounceRequest(() => {
       this.employeeService.createEmployee(this.employeeForm).subscribe(data => {
         this.getEmployees();
       });
-    });
+    //});
   }
 
-  updateEmployee() {
-    this.employeeService.debounceRequest(() => {
+
+
+  // updateEmployee() {
+  //   if (!this.editingEmployee) {
+  //     console.error('No employee selected for update.');
+  //     return;
+  //   }
+  //   this.employeeService.debounceRequest(() => {
+  //     return this.employeeService.updateEmployee(this.editingEmployee.id, this.employeeForm).pipe(
+  //       tap(() => {
+  //         this.getEmployees();
+  //         this.editingEmployee = null;
+  //       })
+  //     );
+  //   });
+  // }
+   updateEmployee() {
+    if (!this.editingEmployee) {
+      console.error('No employee selected for update.');
+      return;
+    }
+    //this.employeeService.debounceRequest(() => {
       this.employeeService.updateEmployee(this.editingEmployee.id, this.employeeForm).subscribe(data => {
         this.getEmployees();
         this.editingEmployee = null;
       });
-    });
+   // });
   }
 
   deleteEmployee(id: number) {
-    this.employeeService.debounceRequest(() => {
+   // this.employeeService.debounceRequest(() => {
       this.employeeService.deleteEmployee(id).subscribe(data => {
-        this.getEmployees();
+        setTimeout(() => {
+          this.getEmployees();  
+        }, 10000);
+      }, error => {
+        console.error('Error deleting employee:', error);
       });
-    });
+    //});
   }
 
   editEmployee(id: number) {

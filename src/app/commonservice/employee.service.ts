@@ -10,11 +10,11 @@ export class EmployeeService {
   private apiUrl = 'https://dummy.restapiexample.com/api/v1';
   private debounceSubject = new Subject<any>();
 
-  constructor(private http: HttpClient) {
-    this.debounceSubject.pipe(debounceTime(10000)).subscribe(request => {
-      request.call();
-    });
-  }
+   constructor(private http: HttpClient) {
+    // this.debounceSubject.pipe(debounceTime(2000)).subscribe(request => {
+    //   request.call();
+  //  });
+   }
 
   getEmployees(): Observable<any> {
     return this.http.get(`${this.apiUrl}/employees`).pipe(
@@ -50,15 +50,23 @@ export class EmployeeService {
     this.debounceSubject.next({ call });
   }
 
-  private handleError(error: HttpErrorResponse) {
+//   private handleError(error: HttpErrorResponse) {
+//     console.error(`Backend returned code ${error.status}, body was: ${error.error}`);
+//     return throwError('Something went wrong; please try again later.');
+//   }
+// }
+
+private handleError(error: HttpErrorResponse) {
+  if (error.status === 429) {
+    const retryAfter = error.headers.get('Retry-After');
+    console.error(`Rate limit exceeded. Retry after ${retryAfter} seconds.`);
+  } else {
     console.error(`Backend returned code ${error.status}, body was: ${error.error}`);
-    return throwError('Something went wrong; please try again later.');
   }
+  return throwError('Something went wrong; please try again later.');
 }
 
-
-
-
+}
 
 
 
